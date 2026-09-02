@@ -33,48 +33,16 @@ jobs:
         pip install --upgrade pip
         pip install buildozer cython
 
-    - name: Setup Android SDK with correct structure
-      run: |
-        # تنظيف أي مجلدات سابقة
-        rm -rf ~/.buildozer/android/platform/android-sdk
-        
-        # إنشاء المجلدات بالهيكل المطلوب من Buildozer
-        export ANDROID_SDK_ROOT=$HOME/.buildozer/android/platform/android-sdk
-        mkdir -p $ANDROID_SDK_ROOT
-        cd $ANDROID_SDK_ROOT
-        
-        # تحميل command line tools
-        wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
-        unzip -q commandlinetools-linux-11076708_latest.zip
-        rm commandlinetools-linux-11076708_latest.zip
-        
-        # بناء الهيكل الذي يبحث عنه Buildozer بالضبط
-        # Buildozer يتوقع: android-sdk/tools/bin/sdkmanager
-        mkdir -p tools/bin
-        cp cmdline-tools/bin/sdkmanager tools/bin/sdkmanager
-        cp cmdline-tools/bin/avdmanager tools/bin/avdmanager
-        chmod +x tools/bin/sdkmanager
-        chmod +x tools/bin/avdmanager
-        
-        # أيضاً ضع نسخة في المسار الجديد (للتوافق)
-        mkdir -p cmdline-tools/latest/bin
-        cp cmdline-tools/bin/* cmdline-tools/latest/bin/ 2>/dev/null || true
-        
-        # إضافة إلى المسار
-        export PATH=$PATH:$ANDROID_SDK_ROOT/tools/bin
-        export PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/bin
-        
-        # قبول التراخيص
-        yes | $ANDROID_SDK_ROOT/tools/bin/sdkmanager --licenses > /dev/null 2>&1 || true
-        
-        # تثبيت الأدوات المطلوبة
-        $ANDROID_SDK_ROOT/tools/bin/sdkmanager "platform-tools" "platforms;android-30" "build-tools;30.0.3" > /dev/null 2>&1 || true
+    - name: Setup Android SDK using official action
+      uses: android-actions/setup-android@v3
+      with:
+        packages: platform-tools platforms;android-30 build-tools;30.0.3
 
     - name: Build with Buildozer
       run: |
-        export ANDROID_SDK_ROOT=$HOME/.buildozer/android/platform/android-sdk
+        export ANDROID_SDK_ROOT=$ANDROID_HOME
+        export PATH=$PATH:$ANDROID_SDK_ROOT/platform-tools
         export PATH=$PATH:$ANDROID_SDK_ROOT/tools/bin
-        export PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/bin
         buildozer android debug
 
     - name: Upload APK
