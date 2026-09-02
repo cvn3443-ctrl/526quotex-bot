@@ -1,4 +1,4 @@
-name: Build APK
+herename: Build APK
 
 on:
   push:
@@ -19,14 +19,15 @@ jobs:
         distribution: 'temurin'
         java-version: '11'
 
-    - name: Build with Gradle Wrapper
+    - name: Install Gradle 7.5.1
       run: |
-        # إنشاء Gradle Wrapper إذا لم يكن موجوداً
-        if [ ! -f gradlew ]; then
-          gradle wrapper --gradle-version 7.5.1
-        fi
-        chmod +x gradlew
-        ./gradlew assembleDebug
+        wget -q https://services.gradle.org/distributions/gradle-7.5.1-bin.zip
+        unzip -q gradle-7.5.1-bin.zip
+        echo "$(pwd)/gradle-7.5.1/bin" >> $GITHUB_PATH
+
+    - name: Build with Gradle
+      run: |
+        gradle assembleDebug
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
