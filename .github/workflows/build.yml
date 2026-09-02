@@ -22,18 +22,10 @@ jobs:
     - name: Set up Android SDK
       uses: android-actions/setup-android@v3
 
-    - name: Build with Gradle
+    - name: Build with Gradle (using system Gradle)
       run: |
-        # تثبيت Gradle إذا لم يكن موجوداً
-        if [ ! -f ./gradlew ]; then
-          wget -q https://services.gradle.org/distributions/gradle-7.5.1-bin.zip
-          unzip -q gradle-7.5.1-bin.zip
-          export PATH=$PATH:$(pwd)/gradle-7.5.1/bin
-        else
-          chmod +x ./gradlew
-        fi
-        # بناء التطبيق
-        ./gradlew assembleDebug || gradle assembleDebug
+        # استخدام Gradle المثبت في النظام
+        gradle assembleDebug
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
