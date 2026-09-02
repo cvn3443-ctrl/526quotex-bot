@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quotex Bot</title>
+    <style>
+        body { background: #0d1117; color: #e6edf3; font-family: Arial; padding: 15px; margin: 0; }
+        .container { max-width: 500px; margin: auto; }
+        .card { background: #161b22; padding: 15px; border-radius: 10px; margin: 10px 0; border: 1px solid #30363d; }
+        .status { color: #58a6ff; }
+        .signal-up { color: #3fb950; }
+        .signal-down { color: #f85149; }
+        .log { background: #0d1117; padding: 10px; border-radius: 5px; max-height: 300px; overflow-y: auto; font-size: 12px; border: 1px solid #30363d; }
+        .log div { padding: 3px 0; border-bottom: 1px solid #161b22; }
+        .trade { color: #d2a8ff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="color:#58a6ff;">🤖 Quotex Bot</h1>
+        <div class="card">
+            <p>الحالة: <span id="status" class="status">جاهز</span></p>
+            <p>الإشارة: <span id="signal" class="status">—</span></p>
+            <p>الصفقات: <span id="trades">0</span>/3</p>
+        </div>
+        <div class="card">
+            <h4>📋 السجل</h4>
+            <div id="log" class="log">
+                <div class="system">[system] ✅ البوت جاهز</div>
+                <div class="system">[system] 💡 اضغط "بدء" للتداول</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isRunning = false;
+        let trades = 0;
+        const MAX_TRADES = 3;
+        let intervalId = null;
+
+        function analyzeMarket() {
+            const signals = ["up", "down", "wait"];
+            const rand = Math.random();
+            if (rand < 0.35) return "up";
+            else if (rand < 0.70) return "down";
+            else return "wait";
+        }
+
+        function addLog(message, type = 'system') {
+            const logDiv = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.className = type;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logDiv.appendChild(entry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function startBot() {
+            if (isRunning) return;
+            isRunning = true;
+            trades = 0;
+            document.getElementById('status').textContent = 'يعمل...';
+            document.getElementById('trades').textContent = '0';
+            addLog('▶ بدء التداول (وهمي)', 'system');
+
+            intervalId = setInterval(() => {
+                if (trades >= MAX_TRADES) {
+                    stopBot();
+                    addLog('⏹ الحد الأقصى 3 صفقات', 'system');
+                    return;
+                }
+                if (!isRunning) return;
+
+                const signal = analyzeMarket();
+                const signalName = signal === 'up' ? 'صعود ✅' :
+                                  signal === 'down' ? 'هبوط 🔻' : 'انتظار ⏳';
+                const signalClass = signal === 'up' ? 'signal-up' :
+                                   signal === 'down' ? 'signal-down' : 'status';
+
+                document.getElementById('signal').textContent = signalName;
+                document.getElementById('signal').className = signalClass;
+                addLog(`📊 الإشارة: ${signalName}`, signalClass);
+
+                if (signal !== 'wait') {
+                    addLog(`🖱️ تنفيذ صفقة ${signalName} (محاكاة)`, 'trade');
+                    trades++;
+                    document.getElementById('trades').textContent = trades;
+                    if (trades >= MAX_TRADES) {
+                        stopBot();
+                        addLog('⏹ الحد الأقصى 3 صفقات', 'system');
+                    }
+                }
+            }, 5000);
+        }
+
+        function stopBot() {
+            isRunning = false;
+            if (intervalId) {
+                clearInterval(intervalId);
+                intervalId = null;
+            }
+            document.getElementById('status').textContent = 'متوقف';
+            addLog('⏹ تم إيقاف البوت', 'system');
+        }
+
+        function setSettings(account, amount) {
+            addLog(`📌 الحساب: ${account} | المبلغ: $${amount}`, 'system');
+        }
+
+        addLog('📌 تم تحميل الصفحة', 'system');
+    </script>
+</body>
+</html>
