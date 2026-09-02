@@ -24,7 +24,6 @@ android.gradle_plugin_version = 3.4.0
 android.use_androidx = True
 android.launcher_name = Quotex Bot
 android.activity_name = main
-android.ndk = True
 android.old_p4a = False
 android.wakelock = True
 android.debug = False
