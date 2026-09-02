@@ -44,10 +44,11 @@ jobs:
         rm commandlinetools-linux-11076708_latest.zip
         mkdir -p cmdline-tools
         cp -r cmdline-tools cmdline-tools/latest 2>/dev/null || true
-        # إنشاء رابط رمزي للمسار القديم الذي يبحث عنه Buildozer
         mkdir -p tools/bin
-        ln -s $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager $ANDROID_SDK_ROOT/tools/bin/sdkmanager 2>/dev/null || true
-        ln -s $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/avdmanager $ANDROID_SDK_ROOT/tools/bin/avdmanager 2>/dev/null || true
+        cp $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager $ANDROID_SDK_ROOT/tools/bin/sdkmanager 2>/dev/null || true
+        cp $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/avdmanager $ANDROID_SDK_ROOT/tools/bin/avdmanager 2>/dev/null || true
+        chmod +x $ANDROID_SDK_ROOT/tools/bin/sdkmanager 2>/dev/null || true
+        chmod +x $ANDROID_SDK_ROOT/tools/bin/avdmanager 2>/dev/null || true
         export PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin
         export PATH=$PATH:$ANDROID_SDK_ROOT/tools/bin
         yes | sdkmanager --licenses > /dev/null 2>&1 || true
