@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Quotex Bot</string>
+    <string-array name="account_types">
+        <item>تجريبي</item>
+        <item>حقيقي</item>
+    </string-array>
+</resources>
