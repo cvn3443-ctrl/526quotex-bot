@@ -1,27 +1,20 @@
-plugins {
-    id 'com.android.application'
-}
-
-android {
-    namespace 'com.quotexbot.app'
-    compileSdk 33
-
-    defaultConfig {
-        applicationId "com.quotexbot.app"
-        minSdk 21
-        targetSdk 33
-        versionCode 1
-        versionName "1.0"
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
     }
-
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:7.4.2'
     }
 }
 
-dependencies {
-    implementation 'androidx.appcompat:appcompat:1.6.1'
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
 }
