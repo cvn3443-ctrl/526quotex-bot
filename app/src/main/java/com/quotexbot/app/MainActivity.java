@@ -28,7 +28,13 @@ public class MainActivity extends AppCompatActivity {
         WebSettings webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
         webSettings.setDomStorageEnabled(true);
-        webView.setWebViewClient(new WebViewClient());
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                // حقن كود البحث عن الأزرار
+                injectAutoClickCode();
+            }
+        });
         webView.setWebChromeClient(new WebChromeClient());
 
         webView.loadUrl("https://qxbroker.com/en/trade");
@@ -37,16 +43,45 @@ public class MainActivity extends AppCompatActivity {
         btnStop.setOnClickListener(v -> stopTrading());
     }
 
+    private void injectAutoClickCode() {
+        String jsCode = 
+            "window.autoClick = function(signal) {" +
+            "  var buttons = document.querySelectorAll('button, div[role=\"button\"], span[role=\"button\"]');" +
+            "  for (var i = 0; i < buttons.length; i++) {" +
+            "    var btn = buttons[i];" +
+            "    var text = (btn.innerText || btn.textContent || '').toLowerCase();" +
+            "    var isVisible = btn.offsetParent !== null && btn.offsetWidth > 0 && btn.offsetHeight > 0;" +
+            "    if (isVisible) {" +
+            "      if (signal === 'up' && (text.includes('call') || text.includes('up'))) {" +
+            "        btn.click();" +
+            "        console.log('✅ تم النقر على صعود');" +
+            "        return true;" +
+            "      }" +
+            "      if (signal === 'down' && (text.includes('put') || text.includes('down'))) {" +
+            "        btn.click();" +
+            "        console.log('✅ تم النقر على هبوط');" +
+            "        return true;" +
+            "      }" +
+            "    }" +
+            "  }" +
+            "  console.log('❌ لم يتم العثور على زر: ' + signal);" +
+            "  return false;" +
+            "};" +
+            "console.log('✅ كود النقر التلقائي جاهز!');";
+        webView.evaluateJavascript(jsCode, null);
+    }
+
     private void startTrading() {
         if (isRunning) return;
         isRunning = true;
         btnStart.setEnabled(false);
         btnStop.setEnabled(true);
         btnStop.setVisibility(View.VISIBLE);
-        Toast.makeText(this, "▶ بدء التداول...", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "بدء التداول...", Toast.LENGTH_SHORT).show();
 
-        // تشغيل الخدمة الخلفية
+        // تشغيل الخدمة الخلفية مع إشارة البدء
         Intent serviceIntent = new Intent(this, TradingService.class);
+        serviceIntent.putExtra("ACTION", "START");
         startService(serviceIntent);
     }
 
@@ -55,16 +90,10 @@ public class MainActivity extends AppCompatActivity {
         btnStart.setEnabled(true);
         btnStop.setEnabled(false);
         btnStop.setVisibility(View.GONE);
-        Toast.makeText(this, "⏹ تم إيقاف التداول", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "تم إيقاف التداول", Toast.LENGTH_SHORT).show();
 
-        // إيقاف الخدمة الخلفية
         Intent serviceIntent = new Intent(this, TradingService.class);
-        stopService(serviceIntent);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        // التطبيق يفضل شغال حتى في الخلفية
+        serviceIntent.putExtra("ACTION", "STOP");
+        startService(serviceIntent);
     }
 }
