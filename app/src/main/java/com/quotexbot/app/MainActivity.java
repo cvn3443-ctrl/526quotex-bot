@@ -33,19 +33,8 @@ public class MainActivity extends AppCompatActivity {
 
         webView.loadUrl("https://qxbroker.com/en/trade");
 
-        btnStart.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startTrading();
-            }
-        });
-
-        btnStop.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                stopTrading();
-            }
-        });
+        btnStart.setOnClickListener(v -> startTrading());
+        btnStop.setOnClickListener(v -> stopTrading());
     }
 
     private void startTrading() {
@@ -54,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
         btnStart.setEnabled(false);
         btnStop.setEnabled(true);
         btnStop.setVisibility(View.VISIBLE);
-        Toast.makeText(this, "بدء التداول في الخلفية...", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "▶ بدء التداول...", Toast.LENGTH_SHORT).show();
 
         // تشغيل الخدمة الخلفية
         Intent serviceIntent = new Intent(this, TradingService.class);
@@ -66,10 +55,16 @@ public class MainActivity extends AppCompatActivity {
         btnStart.setEnabled(true);
         btnStop.setEnabled(false);
         btnStop.setVisibility(View.GONE);
-        Toast.makeText(this, "تم إيقاف التداول", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "⏹ تم إيقاف التداول", Toast.LENGTH_SHORT).show();
 
         // إيقاف الخدمة الخلفية
         Intent serviceIntent = new Intent(this, TradingService.class);
         stopService(serviceIntent);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // التطبيق يفضل شغال حتى في الخلفية
     }
 }
