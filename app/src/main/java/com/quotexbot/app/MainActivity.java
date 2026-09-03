@@ -43,39 +43,42 @@ public class MainActivity extends AppCompatActivity {
 
     private void injectClickCode() {
         String jsCode = 
-            "window.clickUp = function() {" +
-            "  var buttons = document.querySelectorAll('button');" +
-            "  for (var i = 0; i < buttons.length; i++) {" +
-            "    var btn = buttons[i];" +
-            "    var text = btn.innerText || btn.textContent || '';" +
-            "    var isVisible = btn.offsetParent !== null;" +
-            "    // البحث عن زر يحتوي على 'Call' أو 'Up' وليس مخفياً" +
-            "    if (isVisible && (text.includes('Call') || text.includes('Up'))) {" +
-            "      btn.click();" +
-            "      console.log('✅ تم النقر على زر: ' + text);" +
+            "function findAndClick(targetText) {" +
+            "  // البحث في جميع العناصر" +
+            "  var elements = document.querySelectorAll('*');" +
+            "  for (var i = 0; i < elements.length; i++) {" +
+            "    var el = elements[i];" +
+            "    var text = el.innerText || el.textContent || '';" +
+            "    // التأكد من أن العنصر قابل للنقر ومرئي" +
+            "    var isClickable = el.onclick !== null || el.getAttribute('role') === 'button' || el.tagName === 'BUTTON';" +
+            "    var isVisible = el.offsetParent !== null && el.offsetWidth > 0 && el.offsetHeight > 0;" +
+            "    if (isClickable && isVisible && text.trim() === targetText) {" +
+            "      el.click();" +
+            "      console.log('✅ تم النقر على: ' + targetText);" +
             "      return true;" +
             "    }" +
             "  }" +
-            "  console.log('❌ لم يتم العثور على زر صعود');" +
+            "  // محاولة البحث عن عنصر يحتوي على النص (إذا لم يطابق تماماً)" +
+            "  for (var i = 0; i < elements.length; i++) {" +
+            "    var el = elements[i];" +
+            "    var text = el.innerText || el.textContent || '';" +
+            "    var isVisible = el.offsetParent !== null && el.offsetWidth > 0 && el.offsetHeight > 0;" +
+            "    if (isVisible && text.includes(targetText)) {" +
+            "      el.click();" +
+            "      console.log('✅ تم النقر على عنصر يحتوي: ' + targetText);" +
+            "      return true;" +
+            "    }" +
+            "  }" +
+            "  console.log('❌ لم يتم العثور على: ' + targetText);" +
             "  return false;" +
+            "}" +
+            "window.clickUp = function() {" +
+            "  return findAndClick('Call') || findAndClick('Up') || findAndClick('صعود');" +
             "};" +
             "window.clickDown = function() {" +
-            "  var buttons = document.querySelectorAll('button');" +
-            "  for (var i = 0; i < buttons.length; i++) {" +
-            "    var btn = buttons[i];" +
-            "    var text = btn.innerText || btn.textContent || '';" +
-            "    var isVisible = btn.offsetParent !== null;" +
-            "    // البحث عن زر يحتوي على 'Put' أو 'Down' وليس مخفياً" +
-            "    if (isVisible && (text.includes('Put') || text.includes('Down'))) {" +
-            "      btn.click();" +
-            "      console.log('✅ تم النقر على زر: ' + text);" +
-            "      return true;" +
-            "    }" +
-            "  }" +
-            "  console.log('❌ لم يتم العثور على زر هبوط');" +
-            "  return false;" +
+            "  return findAndClick('Put') || findAndClick('Down') || findAndClick('هبوط');" +
             "};" +
-            "console.log('✅ كود النقر الدقيق جاهز!');";
+            "console.log('✅ كود النقر الشامل جاهز!');";
         webView.evaluateJavascript(jsCode, null);
     }
 
