@@ -30,7 +30,6 @@ public class MainActivity extends AppCompatActivity {
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
-                // حقن كود النقر بعد تحميل المنصة
                 injectClickCode();
             }
         });
@@ -43,25 +42,42 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void injectClickCode() {
-        String jsCode =
-            "function simulateClick(selector) {" +
-            "  var element = document.querySelector(selector);" +
-            "  if (element) {" +
-            "    element.click();" +
-            "    console.log('✅ تم النقر على: ' + selector);" +
-            "    return true;" +
-            "  } else {" +
-            "    console.log('❌ لم يتم العثور على: ' + selector);" +
-            "    return false;" +
+        String jsCode = 
+            "function findAndClick(selectors) {" +
+            "  for (var i = 0; i < selectors.length; i++) {" +
+            "    var element = document.querySelector(selectors[i]);" +
+            "    if (element) {" +
+            "      element.click();" +
+            "      console.log('✅ تم النقر باستخدام: ' + selectors[i]);" +
+            "      return true;" +
+            "    }" +
             "  }" +
+            "  console.log('❌ لم يتم العثور على أي زر');" +
+            "  return false;" +
             "}" +
             "window.clickUp = function() {" +
-            "  return simulateClick('button[aria-label=\"Up\"]');" +
+            "  var selectors = [" +
+            "    'button[aria-label=\"Up\"]'," +
+            "    'button[aria-label=\"Call\"]'," +
+            "    'button[class*=\"call\"]'," +
+            "    'button[class*=\"up\"]'," +
+            "    'button:contains(\"Up\")'," +
+            "    'button:contains(\"Call\")'" +
+            "  ];" +
+            "  return findAndClick(selectors);" +
             "};" +
             "window.clickDown = function() {" +
-            "  return simulateClick('button[aria-label=\"Down\"]');" +
+            "  var selectors = [" +
+            "    'button[aria-label=\"Down\"]'," +
+            "    'button[aria-label=\"Put\"]'," +
+            "    'button[class*=\"put\"]'," +
+            "    'button[class*=\"down\"]'," +
+            "    'button:contains(\"Down\")'," +
+            "    'button:contains(\"Put\")'" +
+            "  ];" +
+            "  return findAndClick(selectors);" +
             "};" +
-            "console.log('✅ كود النقر جاهز!');";
+            "console.log('✅ كود النقر المطور جاهز!');";
         webView.evaluateJavascript(jsCode, null);
     }
 
@@ -73,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
         btnStop.setVisibility(View.VISIBLE);
         Toast.makeText(this, "بدء التداول...", Toast.LENGTH_SHORT).show();
 
-        String jsCode =
+        String jsCode = 
             "if (typeof botInterval !== 'undefined') clearInterval(botInterval);" +
             "console.log('✅ بدء التداول التلقائي (وهمي)');" +
             "botInterval = setInterval(function() {" +
@@ -95,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
         btnStop.setVisibility(View.GONE);
         Toast.makeText(this, "تم إيقاف التداول", Toast.LENGTH_SHORT).show();
 
-        String jsCode =
+        String jsCode = 
             "if (typeof botInterval !== 'undefined') {" +
             "  clearInterval(botInterval);" +
             "  botInterval = undefined;" +
@@ -103,4 +119,4 @@ public class MainActivity extends AppCompatActivity {
             "}";
         webView.evaluateJavascript(jsCode, null);
     }
-                       }
+}
