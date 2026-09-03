@@ -5,7 +5,7 @@
     android:orientation="vertical"
     android:background="#0d1117">
 
-    <!-- شريط التحكم العلوي (زر واحد فقط) -->
+    <!-- شريط التحكم العلوي -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -21,7 +21,10 @@
             android:text="▶ بدء التداول"
             android:textColor="#ffffff"
             android:backgroundTint="#238636"
-            android:padding="12dp 30dp"
+            android:paddingLeft="30dp"
+            android:paddingRight="30dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
             android:textSize="16sp" />
 
         <Button
@@ -32,7 +35,10 @@
             android:textColor="#ffffff"
             android:enabled="false"
             android:backgroundTint="#da3633"
-            android:padding="12dp 30dp"
+            android:paddingLeft="30dp"
+            android:paddingRight="30dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
             android:textSize="16sp"
             android:visibility="gone" />
 
