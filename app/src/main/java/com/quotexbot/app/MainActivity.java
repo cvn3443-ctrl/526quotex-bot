@@ -43,42 +43,58 @@ public class MainActivity extends AppCompatActivity {
 
     private void injectClickCode() {
         String jsCode = 
+            "function simulateClick(element) {" +
+            "  if (!element) return false;" +
+            "  try {" +
+            "    // محاولة الطريقة الأولى" +
+            "    element.click();" +
+            "    console.log('✅ تم النقر (طريقة 1)');" +
+            "    return true;" +
+            "  } catch(e) {" +
+            "    try {" +
+            "      // محاولة الطريقة الثانية (محاكاة الحدث)" +
+            "      var evt = new MouseEvent('click', {" +
+            "        view: window," +
+            "        bubbles: true," +
+            "        cancelable: true" +
+            "      });" +
+            "      element.dispatchEvent(evt);" +
+            "      console.log('✅ تم النقر (طريقة 2)');" +
+            "      return true;" +
+            "    } catch(e2) {" +
+            "      console.log('❌ فشل النقر');" +
+            "      return false;" +
+            "    }" +
+            "  }" +
+            "}" +
             "function findAndClick(targetText) {" +
-            "  // البحث في جميع العناصر" +
             "  var elements = document.querySelectorAll('*');" +
             "  for (var i = 0; i < elements.length; i++) {" +
             "    var el = elements[i];" +
             "    var text = el.innerText || el.textContent || '';" +
-            "    // التأكد من أن العنصر قابل للنقر ومرئي" +
-            "    var isClickable = el.onclick !== null || el.getAttribute('role') === 'button' || el.tagName === 'BUTTON';" +
             "    var isVisible = el.offsetParent !== null && el.offsetWidth > 0 && el.offsetHeight > 0;" +
-            "    if (isClickable && isVisible && text.trim() === targetText) {" +
-            "      el.click();" +
-            "      console.log('✅ تم النقر على: ' + targetText);" +
-            "      return true;" +
+            "    if (isVisible && text.trim() === targetText) {" +
+            "      return simulateClick(el);" +
             "    }" +
             "  }" +
-            "  // محاولة البحث عن عنصر يحتوي على النص (إذا لم يطابق تماماً)" +
             "  for (var i = 0; i < elements.length; i++) {" +
             "    var el = elements[i];" +
             "    var text = el.innerText || el.textContent || '';" +
             "    var isVisible = el.offsetParent !== null && el.offsetWidth > 0 && el.offsetHeight > 0;" +
             "    if (isVisible && text.includes(targetText)) {" +
-            "      el.click();" +
-            "      console.log('✅ تم النقر على عنصر يحتوي: ' + targetText);" +
-            "      return true;" +
+            "      return simulateClick(el);" +
             "    }" +
             "  }" +
             "  console.log('❌ لم يتم العثور على: ' + targetText);" +
             "  return false;" +
             "}" +
             "window.clickUp = function() {" +
-            "  return findAndClick('Call') || findAndClick('Up') || findAndClick('صعود');" +
+            "  return findAndClick('Up') || findAndClick('Call') || findAndClick('صعود');" +
             "};" +
             "window.clickDown = function() {" +
-            "  return findAndClick('Put') || findAndClick('Down') || findAndClick('هبوط');" +
+            "  return findAndClick('Down') || findAndClick('Put') || findAndClick('هبوط');" +
             "};" +
-            "console.log('✅ كود النقر الشامل جاهز!');";
+            "console.log('✅ كود النقر المتقدم جاهز!');";
         webView.evaluateJavascript(jsCode, null);
     }
 
