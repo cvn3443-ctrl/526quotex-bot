@@ -20,36 +20,49 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // ربط العناصر
         webView = findViewById(R.id.webView);
         btnStart = findViewById(R.id.btn_start);
         btnStop = findViewById(R.id.btn_stop);
 
-        // إعداد WebView
         WebSettings webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
         webSettings.setDomStorageEnabled(true);
-        webView.setWebViewClient(new WebViewClient());
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                // حقن كود النقر بعد تحميل المنصة
+                injectClickCode();
+            }
+        });
         webView.setWebChromeClient(new WebChromeClient());
 
-        // تحميل منصة Quotex
         webView.loadUrl("https://qxbroker.com/en/trade");
 
-        // زر البدء
-        btnStart.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startTrading();
-            }
-        });
+        btnStart.setOnClickListener(v -> startTrading());
+        btnStop.setOnClickListener(v -> stopTrading());
+    }
 
-        // زر الإيقاف
-        btnStop.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                stopTrading();
-            }
-        });
+    private void injectClickCode() {
+        String jsCode =
+            "function simulateClick(selector) {" +
+            "  var element = document.querySelector(selector);" +
+            "  if (element) {" +
+            "    element.click();" +
+            "    console.log('✅ تم النقر على: ' + selector);" +
+            "    return true;" +
+            "  } else {" +
+            "    console.log('❌ لم يتم العثور على: ' + selector);" +
+            "    return false;" +
+            "  }" +
+            "}" +
+            "window.clickUp = function() {" +
+            "  return simulateClick('button[aria-label=\"Up\"]');" +
+            "};" +
+            "window.clickDown = function() {" +
+            "  return simulateClick('button[aria-label=\"Down\"]');" +
+            "};" +
+            "console.log('✅ كود النقر جاهز!');";
+        webView.evaluateJavascript(jsCode, null);
     }
 
     private void startTrading() {
@@ -60,22 +73,18 @@ public class MainActivity extends AppCompatActivity {
         btnStop.setVisibility(View.VISIBLE);
         Toast.makeText(this, "بدء التداول...", Toast.LENGTH_SHORT).show();
 
-        // حقن كود النقر التلقائي في المنصة
-        String jsCode = 
+        String jsCode =
             "if (typeof botInterval !== 'undefined') clearInterval(botInterval);" +
             "console.log('✅ بدء التداول التلقائي (وهمي)');" +
             "botInterval = setInterval(function() {" +
-            "  var signal = Math.random() > 0.5 ? 'up' : 'down';" +
+            "  var signal = Math.random() > 0.5 ? 'Up' : 'Down';" +
             "  console.log('🖱️ إشارة: ' + signal);" +
-            "  // محاكاة النقر (سنضيف النقر الفعلي لاحقاً)" +
-            "  var x = signal === 'up' ? 500 : 500;" +
-            "  var y = signal === 'up' ? 900 : 1100;" +
-            "  // تنبيه في الواجهة (للتجربة)" +
-            "  var alertMsg = '🖱️ تنفيذ صفقة: ' + signal;" +
-            "  console.log(alertMsg);" +
-            "}, 5000);" + // كل 5 ثوانٍ
-            "setTimeout(function() { console.log('⏳ التداول مستمر...'); }, 1000);";
-        
+            "  if (signal === 'Up') {" +
+            "    window.clickUp();" +
+            "  } else {" +
+            "    window.clickDown();" +
+            "  }" +
+            "}, 5000);";
         webView.evaluateJavascript(jsCode, null);
     }
 
@@ -86,8 +95,7 @@ public class MainActivity extends AppCompatActivity {
         btnStop.setVisibility(View.GONE);
         Toast.makeText(this, "تم إيقاف التداول", Toast.LENGTH_SHORT).show();
 
-        // إيقاف التداول
-        String jsCode = 
+        String jsCode =
             "if (typeof botInterval !== 'undefined') {" +
             "  clearInterval(botInterval);" +
             "  botInterval = undefined;" +
@@ -95,20 +103,4 @@ public class MainActivity extends AppCompatActivity {
             "}";
         webView.evaluateJavascript(jsCode, null);
     }
-
-    // السماح للتطبيق بالعمل في الخلفية
-    @Override
-    protected void onPause() {
-        super.onPause();
-        // التطبيق سيستمر في العمل حتى لو تم تصغيره
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        // عند العودة للتطبيق، تحديث الحالة
-        if (isRunning) {
-            Toast.makeText(this, "التداول مستمر...", Toast.LENGTH_SHORT).show();
-        }
-    }
-}
+                       }
