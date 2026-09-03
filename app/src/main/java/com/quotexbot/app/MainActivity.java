@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
         // تحميل منصة Quotex مباشرة
         webView.loadUrl("https://qxbroker.com/en/trade");
 
-        // أزرار التحكم
+        // زر البدء
         btnStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -45,11 +45,23 @@ public class MainActivity extends AppCompatActivity {
                 btnStart.setEnabled(false);
                 btnStop.setEnabled(true);
                 statusText.setText("يعمل...");
-                // استدعاء دالة البدء في صفحة الويب
-                webView.evaluateJavascript("javascript:startBot()", null);
+                
+                // حقن كود التحليل الوهمي في المنصة
+                String jsCode = 
+                    "if (typeof botInterval !== 'undefined') clearInterval(botInterval);" +
+                    "console.log('✅ بدء التداول الوهمي');" +
+                    "botInterval = setInterval(function() {" +
+                    "  var signal = Math.random() > 0.5 ? 'up' : 'down';" +
+                    "  var x = signal === 'up' ? 540 : 540;" + // إحداثيات مؤقتة
+                    "  var y = signal === 'up' ? 1200 : 1400;" +
+                    "  console.log('🖱️ إشارة: ' + signal + ' - تنفيذ نقر');" +
+                    "  // محاكاة النقر (سنضيف النقر الفعلي لاحقاً)" +
+                    "}, 5000);";
+                webView.evaluateJavascript(jsCode, null);
             }
         });
 
+        // زر الإيقاف
         btnStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -57,7 +69,15 @@ public class MainActivity extends AppCompatActivity {
                 btnStart.setEnabled(true);
                 btnStop.setEnabled(false);
                 statusText.setText("متوقف");
-                webView.evaluateJavascript("javascript:stopBot()", null);
+                
+                // إيقاف التداول
+                String jsCode = 
+                    "if (typeof botInterval !== 'undefined') {" +
+                    "  clearInterval(botInterval);" +
+                    "  botInterval = undefined;" +
+                    "  console.log('⏹ تم إيقاف التداول');" +
+                    "}";
+                webView.evaluateJavascript(jsCode, null);
             }
         });
     }
